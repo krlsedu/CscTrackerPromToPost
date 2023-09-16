@@ -31,7 +31,7 @@ def convert():
     timestamp_ = int(datetime.now().timestamp() / int(args_['step'])) * int(args_['step'])
 
     if 'start' not in args_:
-        args_['start'] = timestamp_ - (60 * 60)
+        args_['start'] = timestamp_ - (60 * 10)
 
     if 'end' not in args_:
         args_['end'] = timestamp_
