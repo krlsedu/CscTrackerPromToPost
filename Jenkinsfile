@@ -117,12 +117,12 @@ pipeline {
             steps {
                 script {
                     if (env.BRANCH_NAME == 'master') {
-                        withCredentials([usernamePassword(credentialsId: 'developHost', passwordVariable: 'password', usernameVariable: 'user')]) {
+                        withCredentials([usernamePassword(credentialsId: 'one_click_host', passwordVariable: 'password', usernameVariable: 'user')]) {
                             script {
                                 echo "Update remote"
                                 def remote = [:]
-                                remote.name = 'HomeLabHost'
-                                remote.host = env.HOME_LAB_HOST_IP
+                                remote.name = 'Hostinger'
+                                remote.host = env.ONE_CLICK_HOST_IP
                                 remote.user = env.user
                                 remote.port = 22
                                 remote.password = env.password
