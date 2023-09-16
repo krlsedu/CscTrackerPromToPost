@@ -13,9 +13,8 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 metrics = PrometheusMetrics(app, group_by='endpoint', default_labels={'application': 'CscTrackerRedirect'})
-# url_repository = 'http://127.0.0.1:5001' + '/'  # https://backend.csctracker.com/repository
-url_repository = os.environ['URL_REPOSITORY'] + '/'  # https://backend.csctracker.com/repository
-url_prometeus = os.environ['URL_PROMETHEUS']  # https://prometheus.csctracker.com/api/v1/query_range
+url_repository = os.environ['URL_REPOSITORY'] + '/'
+url_prometeus = os.environ['URL_PROMETHEUS']
 
 
 @app.route('/convert', methods=['GET'])
