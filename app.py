@@ -53,7 +53,7 @@ def convert():
     if 'auto' in args:
         if converted_metric_ is not None:
             timestamp_ = converted_metric_['timestamp_start']
-        args_['start'] = timestamp_ - (11000 * int(args_['step']))
+        args_['start'] = timestamp_ - 11000
 
     if 'end' not in args_:
         args_['end'] = timestamp_
