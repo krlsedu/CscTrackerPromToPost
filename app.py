@@ -44,7 +44,11 @@ def convert():
     if 'date' in args:
         date_end = datetime.strptime(args['date'], '%Y-%m-%d %H:%M:%S.%f')
         timestamp_ = int(date_end.timestamp() / int(step_dest)) * int(step_dest)
-    converted_metric_ = get_date_end(args_['query'], headers)
+    query_ = args_['query']
+    if 'auto' in args:
+        query_ += f"[auto = {args['auto']}]"
+
+    converted_metric_ = get_date_end(query_, headers)
     print(converted_metric_)
     if 'auto' in args:
         if converted_metric_ is not None:
@@ -77,7 +81,7 @@ def convert():
     body = convert_response_to_metrics(response, headers)
     response = requests.post(f"{url_repository}metrics?metric&date", headers=headers, json=body)
     if converted_metric_ is None:
-        converted_metric_ = {'query': args_['query'], 'timestamp_start': args_['start'], 'timestamp_end': args_['end']}
+        converted_metric_ = {'query': query_, 'timestamp_start': args_['start'], 'timestamp_end': args_['end']}
     else:
         converted_metric_['timestamp_start'] = args_['start']
         converted_metric_['timestamp_end'] = args_['end']
