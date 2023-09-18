@@ -13,7 +13,7 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-metrics = PrometheusMetrics(app, group_by='endpoint', default_labels={'application': 'CscTrackerRedirect'})
+metrics = PrometheusMetrics(app, group_by='endpoint', default_labels={'application': 'CscTrackerPromToPost'})
 url_repository = os.environ['URL_REPOSITORY'] + '/'
 url_prometeus = os.environ['URL_PROMETHEUS']
 
