@@ -22,19 +22,40 @@ url_prometeus = os.environ['URL_PROMETHEUS']
 def convert():
     args = request.args
     args_ = {}
+    args_to_prometheus = ['start', 'end', 'step', 'query', 'timeout', 'dedup', 'partial_response', 'silence']
     for key in args.keys():
-        args_[key] = args[key]
+        if key in args_to_prometheus:
+            args_[key] = args[key]
 
     if 'step' not in args_:
         args_['step'] = 60
 
     timestamp_ = int(datetime.now().timestamp() / int(args_['step'])) * int(args_['step'])
 
-    if 'start' not in args_:
-        args_['start'] = timestamp_ - (60 * 10)
+    if 'date' in args:
+        date_end = datetime.strptime(args['date'], '%Y-%m-%d %H:%M:%S.%f')
+        timestamp_ = int(date_end.timestamp() / int(args_['step'])) * int(args_['step'])
 
     if 'end' not in args_:
         args_['end'] = timestamp_
+
+    if 'range' in args:
+
+        range_ = args['range']
+        if range_.endswith('s'):
+            args_['start'] = timestamp_ - (int(range_[:-1]) * 1)
+        elif range_.endswith('m'):
+            args_['start'] = timestamp_ - (int(range_[:-1]) * 60)
+        elif range_.endswith('h'):
+            args_['start'] = timestamp_ - (int(range_[:-1]) * 3600)
+        elif range_.endswith('d'):
+            args_['start'] = timestamp_ - (int(range_[:-1]) * 86400)
+        else:
+            args_['start'] = timestamp_ - (int(range_) * 60)
+
+    if 'start' not in args_:
+        args_['start'] = timestamp_ - (60 * 10)
+
 
     body = None
     response = requests.get(url_prometeus, json=body, params=args_)
