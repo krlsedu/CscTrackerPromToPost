@@ -77,6 +77,7 @@ def convert_response_to_metrics(response, headers=None):
     for metric in result:
         metric_name = json.dumps(metric['metric'])
         values_ = metric['values']
+        last_metric = None
         for value in values_:
             count_ += 1
             print(f"processing {count_} of {len(values_) * len(result)}")
@@ -85,7 +86,11 @@ def convert_response_to_metrics(response, headers=None):
             dt_obj = datetime.fromtimestamp(timestamp)
             dt_obj_utc = dt_obj.astimezone(timezone.utc)
             metric_['date'] = dt_obj_utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-            metrics.append(metric_)
+            if last_metric is None or last_metric['value'] != metric_['value']:
+                metrics.append(metric_)
+                last_metric = metric_
+            else:
+                print(f"metric ignored -> {metric_}")
     return metrics
 
 
