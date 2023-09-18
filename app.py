@@ -95,7 +95,7 @@ def conver_tr(args):
     response_ = requests.post(f"{url_repository}converted_metrics", headers=headers, json=converted_metric_)
     print(response_.json())
     print(response.json())
-    print(args_, datetime.now() - ant_)
+    print(args_, args, datetime.now() - ant_)
     return response.json(), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
