@@ -20,6 +20,7 @@ url_prometeus = os.environ['URL_PROMETHEUS']
 @app.route('/convert', methods=['GET'])
 @cross_origin()
 def convert():
+    ant_ = datetime.now()
     headers = {
         'Authorization': "Bearer " + os.environ['TOKEN_INTEGRACAO']
     }
@@ -83,6 +84,7 @@ def convert():
     response_ = requests.post(f"{url_repository}converted_metrics", headers=headers, json=converted_metric_)
     print(response_.json())
     print(response.json())
+    print(args_, datetime.now() - ant_)
     return response.json(), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
