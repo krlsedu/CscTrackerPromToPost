@@ -1,5 +1,6 @@
 import json
 import os
+import threading
 from datetime import datetime, timezone
 
 import requests as requests
@@ -20,11 +21,16 @@ url_prometeus = os.environ['URL_PROMETHEUS']
 @app.route('/convert', methods=['GET'])
 @cross_origin()
 def convert():
+    args = request.args
+    threading.Thread(target=conver_tr, args=(args,)).start()
+    return {'message': 'ok'}, 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+
+def conver_tr(args):
     ant_ = datetime.now()
     headers = {
         'Authorization': "Bearer " + os.environ['TOKEN_INTEGRACAO']
     }
-    args = request.args
     args_ = {}
     args_to_prometheus = ['start', 'end', 'step', 'query', 'timeout', 'dedup', 'partial_response', 'silence']
     for key in args.keys():
