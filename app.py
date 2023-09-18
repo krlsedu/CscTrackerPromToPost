@@ -49,6 +49,7 @@ def convert():
     if 'auto' in args:
         if converted_metric_ is not None:
             timestamp_ = converted_metric_['timestamp_start']
+        args_['start'] = timestamp_ - (11000 * int(args_['step']))
 
     if 'end' not in args_:
         args_['end'] = timestamp_
@@ -68,7 +69,7 @@ def convert():
             args_['start'] = timestamp_ - (int(range_) * 60)
 
     if 'start' not in args_:
-        args_['start'] = timestamp_ - (11000 * int(args_['step']))
+        args_['start'] = timestamp_ - (60 * 10)
 
     body = None
     response = requests.get(url_prometeus, json=body, params=args_)
