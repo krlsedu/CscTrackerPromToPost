@@ -96,7 +96,7 @@ def conver_tr(args):
     logging.getLogger().info(response_)
     logging.getLogger().info(response)
     logging.getLogger().info(args_, args, datetime.now() - ant_)
-    return response.json(), 200, {'Content-Type': 'application/json; charset=utf-8'}
+    return response, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
 def convert_response_to_metrics(response, headers=None):
