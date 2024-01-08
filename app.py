@@ -20,7 +20,10 @@ SchedulerService.init()
 @cross_origin()
 def convert():
     args = http_repository.get_args()
-    SchedulerService.put_in_queue(conver_tr, args)
+    args_ = {
+        'args': args,
+    }
+    SchedulerService.put_in_queue(conver_tr, args_)
     return {'message': 'ok'}, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
