@@ -95,7 +95,7 @@ def conver_tr(args):
     response_ = remote_repository.insert(f"converted_metrics", headers=headers, data=converted_metric_)
     logging.getLogger().info(response_)
     logging.getLogger().info(response)
-    logging.getLogger().info(args_, args, datetime.now() - ant_)
+    logging.getLogger().info(f"{args_},{args}, {datetime.now() - ant_}")
     return response, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
