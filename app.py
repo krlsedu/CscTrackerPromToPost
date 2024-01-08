@@ -82,8 +82,7 @@ def conver_tr(args):
     if 'start' not in args_:
         args_['start'] = timestamp_ - (60 * 10)
 
-    body = None
-    response = http_repository.get(url_prometeus, json=body, params=args_)
+    response = http_repository.get(url_prometeus, params=args_)
 
     body = convert_response_to_metrics(response, headers)
     response = remote_repository.insert(f"metrics?metric&date", headers=headers, data=body)
