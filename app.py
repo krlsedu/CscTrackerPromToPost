@@ -1,28 +1,26 @@
 import json
+import logging
 import os
-import threading
 from datetime import datetime, timezone
 
-import requests as requests
-from flask import Flask
-from flask import request
-from flask_cors import CORS, cross_origin
-from prometheus_flask_exporter import PrometheusMetrics
+from csctracker_py_core.repository.http_repository import cross_origin
+from csctracker_py_core.starter import Starter
+from csctracker_queue_scheduler.services.scheduler_service import SchedulerService
 
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-
-metrics = PrometheusMetrics(app, group_by='endpoint', default_labels={'application': 'CscTrackerPromToPost'})
-url_repository = os.environ['URL_REPOSITORY'] + '/'
+starter = Starter()
+app = starter.get_app()
+http_repository = starter.get_http_repository()
+remote_repository = starter.get_remote_repository()
 url_prometeus = os.environ['URL_PROMETHEUS']
+
+SchedulerService.init()
 
 
 @app.route('/convert', methods=['GET'])
 @cross_origin()
 def convert():
-    args = request.args
-    threading.Thread(target=conver_tr, args=(args,)).start()
+    args = http_repository.get_args()
+    SchedulerService.put_in_queue(conver_tr, args)
     return {'message': 'ok'}, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
@@ -55,7 +53,7 @@ def conver_tr(args):
         query_ += f"[auto = {args['auto']}]"
 
     converted_metric_ = get_date_end(query_, headers)
-    print(converted_metric_)
+    logging.getLogger().info(converted_metric_)
     if 'auto' in args:
         if converted_metric_ is not None:
             timestamp_ = converted_metric_['timestamp_start']
@@ -82,20 +80,20 @@ def conver_tr(args):
         args_['start'] = timestamp_ - (60 * 10)
 
     body = None
-    response = requests.get(url_prometeus, json=body, params=args_)
+    response = http_repository.get(url_prometeus, json=body, params=args_)
 
     body = convert_response_to_metrics(response, headers)
-    response = requests.post(f"{url_repository}metrics?metric&date", headers=headers, json=body)
+    response = remote_repository.insert(f"metrics?metric&date", headers=headers, data=body)
     if converted_metric_ is None:
         converted_metric_ = {'query': query_, 'timestamp_start': args_['start'], 'timestamp_end': args_['end']}
     else:
         converted_metric_['timestamp_start'] = args_['start']
         converted_metric_['timestamp_end'] = args_['end']
 
-    response_ = requests.post(f"{url_repository}converted_metrics", headers=headers, json=converted_metric_)
-    print(response_.json())
-    print(response.json())
-    print(args_, args, datetime.now() - ant_)
+    response_ = remote_repository.insert(f"converted_metrics", headers=headers, json=converted_metric_)
+    logging.getLogger().info(response_.json())
+    logging.getLogger().info(response.json())
+    logging.getLogger().info(args_, args, datetime.now() - ant_)
     return response.json(), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
@@ -125,12 +123,10 @@ def convert_response_to_metrics(response, headers=None):
 def get_date_end(query, headers=None):
     select_ = (f"select * from converted_metrics cm "
                f"where cm.query = '{query}' order by timestamp_start limit 1")
-    body = {'command': select_}
-    response = requests.post(f"{url_repository}command/select", headers=headers, json=body)
-    json_ = response.json()
+    response = remote_repository.execute_select(select_, headers=headers)
+    json_ = response
     if len(json_) > 0:
         return json_[0]
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+starter.start()
