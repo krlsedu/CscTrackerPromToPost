@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 from csctracker_py_core.repository.http_repository import cross_origin
 from csctracker_py_core.starter import Starter
+from csctracker_py_core.utils.interceptor import g
 from csctracker_queue_scheduler.services.scheduler_service import SchedulerService
 
 starter = Starter()
@@ -20,18 +21,25 @@ SchedulerService.init()
 @cross_origin()
 def convert():
     args = http_repository.get_args()
+    try:
+        headers = {
+            'Authorization': "Bearer " + os.environ['TOKEN_INTEGRACAO'],
+            'x-correlation-id': g.correlation_id
+        }
+    except:
+        headers = {
+            'Authorization': "Bearer " + os.environ['TOKEN_INTEGRACAO']
+        }
     args_ = {
         'args': args,
+        'headers': headers
     }
     SchedulerService.put_in_queue(conver_tr, args_)
     return {'message': 'ok'}, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
-def conver_tr(args):
+def conver_tr(args, headers):
     ant_ = datetime.now()
-    headers = {
-        'Authorization': "Bearer " + os.environ['TOKEN_INTEGRACAO']
-    }
     args_ = {}
     args_to_prometheus = ['start', 'end', 'step', 'query', 'timeout', 'dedup', 'partial_response', 'silence']
     for key in args.keys():
